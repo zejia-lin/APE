@@ -9,4 +9,5 @@ int main() {
     ape::test_gemm_fp32(2048, 2048, 2048, ape::APE_ALGO_FP32B);
     ape::test_gemm_fp32(4096, 4096, 4096, ape::APE_ALGO_FP32B);
     ape::test_gemm_fp32(8192, 8192, 8192, ape::APE_ALGO_FP32B);
+    ape::test_gemm_fp32(16384, 16384, 16384, ape::APE_ALGO_FP32B);
 }
