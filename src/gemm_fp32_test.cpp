@@ -10,6 +10,7 @@ void test_gemm_fp32(int m, int n, int k, ape::ApeAlgo algo, int iterations = 10)
     int width;
     switch (algo) {
     case APE_ALGO_AUTO:
+    case APE_ALGO_AUTO_STRICT:
         width = 8;
         break;
     case APE_ALGO_FP32F:
@@ -48,10 +49,11 @@ void test_gemm_fp32(int m, int n, int k, ape::ApeAlgo algo, int iterations = 10)
     ape::convert_fp32_to_fp64(data_res_b, data_eval_b, k * n);
     ape::convert_fp32_to_fp64(data_res_c, data_eval_c, m * n);
 
-    double alpha_res = 1.0, beta_res = 1.;
+    float alpha_eval = 3.12753605842590332031f;
+    float beta_eval = 10.5336360931396484375f;
+    double alpha_res = alpha_eval, beta_res = beta_eval;
     ape::apeGemmFP64(ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_res, data_res_a, m, data_res_b, k, &beta_res,
                      data_res_c, m, ape::APE_ALGO_CUBLAS);
-    float alpha_eval = 1.0f, beta_eval = 1.0f;
     ape::apeGemmFP32(ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_eval, data_eval_a, m, data_eval_b, k, &beta_eval,
                      data_eval_c, m, algo);
     double max_error, mean_error;
