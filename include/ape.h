@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <string>
 
+#include <cuda_runtime.h>
+
 namespace ape {
 
 enum ApeTrans {
@@ -42,7 +44,7 @@ inline std::string getApeAlgoName(ApeAlgo algo) {
     }
 }
 
-void apeInit(const size_t buf_size = 0);
+void apeInit(const size_t buf_size = 0, cudaStream_t stream = 0);
 
 void apeGemmFP32(ApeTrans transa, ApeTrans transb, int m, int n, int k, const float *alpha, const float *A, int lda,
                  const float *B, int ldb, const float *beta, float *C, int ldc, const ApeAlgo algo = APE_ALGO_AUTO);

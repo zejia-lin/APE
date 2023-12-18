@@ -6,10 +6,10 @@
 
 namespace ape {
 
-void apeInit(const size_t buf_size) {
-    APEHandler::initCublas();
+void apeInit(const size_t buf_size, cudaStream_t stream) {
+    APEHandler::getInstance()->initCublas(stream);
     if (buf_size > 0) {
-        APEHandler::initBuffer(buf_size);
+        APEHandler::getInstance()->initBuffer(buf_size);
     }
 }
 

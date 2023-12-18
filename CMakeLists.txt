@@ -44,3 +44,11 @@ foreach(TEST IN LISTS TESTS)
     target_link_libraries(${TEST} ape)
 endforeach()
 
+# Set the public headers directory
+# set_target_properties(ape_cuda PROPERTIES PUBLIC_HEADER "include/*.h")
+# set_target_properties(ape PROPERTIES PUBLIC_HEADER "include/*.h")
+
+# Install the shared library and headers
+install(TARGETS ape ape_cuda
+        LIBRARY DESTINATION lib
+        PUBLIC_HEADER DESTINATION include)

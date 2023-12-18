@@ -106,32 +106,30 @@ namespace ape {
 
 class APEHandler {
   private:
-    APEHandler() {}
-    static APEHandler *instance;
     cublasHandle_t ape_cublas_handle;
     void *buf;
     size_t buf_size;
 
   public:
+    APEHandler() {}
     static inline APEHandler *getInstance() {
         static APEHandler instance;
         return &instance;
     }
-    static inline cublasHandle_t getCublasHandle() { return getInstance()->ape_cublas_handle; }
-    static inline void initCublas() {
+    inline cublasHandle_t getCublasHandle() { return ape_cublas_handle; }
+    inline void initCublas(cudaStream_t stream = 0) {
         cublasHandle_t handle;
         cublasSafeCall(cublasCreate(&handle));
         cublasSafeCall(cublasSetMathMode(handle, CUBLAS_DEFAULT_MATH));
-        getInstance()->ape_cublas_handle = handle;
+        cublasSafeCall(cublasSetStream(handle, stream));
+        ape_cublas_handle = handle;
     }
-    static inline void initBuffer(size_t buf_size) {
-        void *buf;
-        cudaSafeCall(cudaMalloc((void **)&buf, buf_size));
-        getInstance()->buf_size = buf_size;
-        getInstance()->buf = buf;
+    inline void initBuffer(size_t size) {
+        cudaSafeCall(cudaMalloc((void **)&buf, size));
+        buf_size = size;
     }
-    static inline size_t getBufSize() { return getInstance()->buf_size; }
-    static inline void *getBuf() { return getInstance()->buf; }
+    inline size_t getBufSize() { return buf_size; }
+    inline void *getBuf() { return buf; }
 };
 
 } // namespace ape
