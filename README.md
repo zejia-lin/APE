@@ -27,7 +27,7 @@ make -j
 APE provides a blas-like API, and users only need to include ape.h to use APE to accelerate FP32 applications directly.
 
 ```c++
-void apeGemmFP32(ApeTrans transa, ApeTrans transb, int m, int n, int k, const float *alpha, const float *A, int lda, const float *B, int ldb, const float *beta, float *C, int ldc, const ApeAlgo algo = APE_ALGO_AUTO);
+void apeGemmFP32(APEHandler apeHandle, ApeTrans transa, ApeTrans transb, int m, int n, int k, const float *alpha, const float *A, int lda, const float *B, int ldb, const float *beta, float *C, int ldc, const ApeAlgo algo = APE_ALGO_AUTO);
 ```
 
 FP32 GEMM supports $5$ algorithms:
@@ -43,7 +43,7 @@ FP32 GEMM supports $5$ algorithms:
 * **APE_ALGO_FP32T**: Use TF32 emulated FP32. (1-bit precision loss, large representation range, overflow does not occur.)
 
 ```c++
-void apeGemmINT16(ApeTrans transa, ApeTrans transb, int m, int n, int k, const int16_t *alpha, const int16_t *A, int lda, const int16_t *B, int ldb, const int32_t *beta, int32_t *C, int ldc, ApeAlgo algo = APE_ALGO_AUTO);
+void apeGemmINT16(APEHandler apeHandle, ApeTrans transa, ApeTrans transb, int m, int n, int k, const int16_t *alpha, const int16_t *A, int lda, const int16_t *B, int ldb, const int32_t *beta, int32_t *C, int ldc, ApeAlgo algo = APE_ALGO_AUTO);
 ```
 
 INT16 GEMM supports $2$ algorithms:

@@ -89,7 +89,7 @@ inline const char *cublasGetErrorString(cublasStatus_t err) {
 
 inline void __cublasSafeCall(cublasStatus_t err, const char *file, const int line) {
     if (err != CUBLAS_STATUS_SUCCESS) {
-        std::cout << "[ERROR]" << file << "::" << line << ": cublasSafeCall() failed. " << cublasGetErrorString(err)
+        std::cout << "[ERROR] " << file << "::" << line << ": cublasSafeCall() failed. " << cublasGetErrorString(err)
                   << std::endl;
         exit(-1);
     }
@@ -112,17 +112,21 @@ class APEHandler {
 
   public:
     APEHandler() {}
-    static inline APEHandler *getInstance() {
-        static APEHandler instance;
-        return &instance;
+    APEHandler(const APEHandler &rhs){
+        ape_cublas_handle = rhs.ape_cublas_handle;
+        buf = rhs.buf;
+        buf_size = rhs.buf_size;
+    }
+    APEHandler(APEHandler &&rhs){
+        ape_cublas_handle = rhs.ape_cublas_handle;
+        buf = rhs.buf;
+        buf_size = rhs.buf_size;
     }
     inline cublasHandle_t getCublasHandle() { return ape_cublas_handle; }
     inline void initCublas(cudaStream_t stream = 0) {
-        cublasHandle_t handle;
-        cublasSafeCall(cublasCreate(&handle));
-        cublasSafeCall(cublasSetMathMode(handle, CUBLAS_DEFAULT_MATH));
-        cublasSafeCall(cublasSetStream(handle, stream));
-        ape_cublas_handle = handle;
+        cublasSafeCall(cublasCreate(&ape_cublas_handle));
+        cublasSafeCall(cublasSetMathMode(ape_cublas_handle, CUBLAS_DEFAULT_MATH));
+        cublasSafeCall(cublasSetStream(ape_cublas_handle, stream));
     }
     inline void initBuffer(size_t size) {
         cudaSafeCall(cudaMalloc((void **)&buf, size));

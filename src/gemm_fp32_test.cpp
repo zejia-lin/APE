@@ -25,7 +25,8 @@ void test_gemm_fp32(int m, int n, int k, ape::ApeAlgo algo, int iterations = 10)
     default:
         width = 0;
     }
-    apeInit((1ULL * m * k + k * n) * width);
+    APEHandler apeHandle;
+    apeInit(apeHandle, (1ULL * m * k + k * n) * width);
     float *data_eval_a = 0, *data_eval_b = 0, *data_eval_c = 0, *data_backup_c = 0;
     cudaSafeCall(cudaMalloc((void **)&data_eval_a, m * k * sizeof(float)));
     cudaSafeCall(cudaMalloc((void **)&data_eval_b, k * n * sizeof(float)));
@@ -52,9 +53,9 @@ void test_gemm_fp32(int m, int n, int k, ape::ApeAlgo algo, int iterations = 10)
     float alpha_eval = 3.12753605842590332031f;
     float beta_eval = 10.5336360931396484375f;
     double alpha_res = alpha_eval, beta_res = beta_eval;
-    ape::apeGemmFP64(ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_res, data_res_a, m, data_res_b, k, &beta_res,
+    ape::apeGemmFP64(apeHandle, ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_res, data_res_a, m, data_res_b, k, &beta_res,
                      data_res_c, m, ape::APE_ALGO_CUBLAS);
-    ape::apeGemmFP32(ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_eval, data_eval_a, m, data_eval_b, k, &beta_eval,
+    ape::apeGemmFP32(apeHandle, ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_eval, data_eval_a, m, data_eval_b, k, &beta_eval,
                      data_eval_c, m, algo);
     double max_error, mean_error;
     ape::compare_fp32_to_fp64(data_eval_c, data_res_c, m * n, max_error, mean_error);
@@ -64,7 +65,7 @@ void test_gemm_fp32(int m, int n, int k, ape::ApeAlgo algo, int iterations = 10)
     cudaEventCreate(&st);
     cudaEventCreate(&ed);
     for (int i = 0; i < iterations; i++) {
-        ape::apeGemmFP32(ape::APE_TRANS_N, ape::APE_TRANS_N, m, n, k, &alpha_eval, data_eval_a, m, data_eval_b, k, &beta_eval,
+        ape::apeGemmFP32(apeHandle, ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_eval, data_eval_a, m, data_eval_b, k, &beta_eval,
                          data_eval_c, m, algo);
     }
     for (int i = 0; i < iterations; i++) {
@@ -72,7 +73,7 @@ void test_gemm_fp32(int m, int n, int k, ape::ApeAlgo algo, int iterations = 10)
         cudaSafeCall(cudaMemcpy(data_eval_c, data_backup_c, sizeof(float) * m * n, cudaMemcpyDeviceToDevice));
         cudaSafeCall(cudaDeviceSynchronize());
         cudaEventRecord(st, 0);
-        ape::apeGemmFP32(ape::APE_TRANS_N, ape::APE_TRANS_N, m, n, k, &alpha_eval, data_eval_a, m, data_eval_b, k, &beta_eval,
+        ape::apeGemmFP32(apeHandle, ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_eval, data_eval_a, m, data_eval_b, k, &beta_eval,
                          data_eval_c, m, algo);
         cudaEventRecord(ed, 0);
         cudaEventSynchronize(st);
