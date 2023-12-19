@@ -26,7 +26,7 @@ void test_gemm_fp32(int m, int n, int k, ape::ApeAlgo algo, int iterations = 10)
         width = 0;
     }
     APEHandler apeHandle;
-    apeInit(apeHandle, (1ULL * m * k + k * n) * width);
+    apeInit(&apeHandle, (1ULL * m * k + k * n) * width);
     float *data_eval_a = 0, *data_eval_b = 0, *data_eval_c = 0, *data_backup_c = 0;
     cudaSafeCall(cudaMalloc((void **)&data_eval_a, m * k * sizeof(float)));
     cudaSafeCall(cudaMalloc((void **)&data_eval_b, k * n * sizeof(float)));
