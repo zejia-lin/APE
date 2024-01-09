@@ -1,13 +1,23 @@
 #include "ape.h"
 #include "test_gemm.h"
 
-int main() {
-    ape::test_gemm_fp32(128, 128, 128, ape::APE_ALGO_FP32B);
-    ape::test_gemm_fp32(256, 256, 256, ape::APE_ALGO_FP32B);
-    ape::test_gemm_fp32(512, 512, 512, ape::APE_ALGO_FP32B);
-    ape::test_gemm_fp32(1024, 1024, 1024, ape::APE_ALGO_FP32B);
-    ape::test_gemm_fp32(2048, 2048, 2048, ape::APE_ALGO_FP32B);
-    ape::test_gemm_fp32(4096, 4096, 4096, ape::APE_ALGO_FP32B);
-    ape::test_gemm_fp32(8192, 8192, 8192, ape::APE_ALGO_FP32B);
-    ape::test_gemm_fp32(16384, 16384, 16384, ape::APE_ALGO_FP32B);
+int main(int argc, char **argv) {
+    if(argc == 4){
+        size_t m = atoi(argv[1]);
+        size_t n = atoi(argv[2]);
+        size_t k = atoi(argv[3]);
+        ape::test_gemm_fp32(m, n, k, ape::APE_ALGO_FP32B);
+        ape::test_gemm_fp32(m, n, k, ape::APE_ALGO_AUTO_STRICT);
+        return 0;
+    }
+    for(size_t N = 1024; N < 32768; N *= 2){
+        ape::test_gemm_fp32(N, N, N, ape::APE_ALGO_FP32B);
+        ape::test_gemm_fp32(N, N, N, ape::APE_ALGO_AUTO_STRICT);
+        size_t zhong = N * 1.25;
+        ape::test_gemm_fp32(zhong, zhong, zhong, ape::APE_ALGO_FP32B);
+        ape::test_gemm_fp32(zhong, zhong, zhong, ape::APE_ALGO_AUTO_STRICT);   
+        zhong = N * 1.5;
+        ape::test_gemm_fp32(zhong, zhong, zhong, ape::APE_ALGO_FP32B);
+        ape::test_gemm_fp32(zhong, zhong, zhong, ape::APE_ALGO_AUTO_STRICT);
+    }
 }

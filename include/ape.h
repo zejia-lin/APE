@@ -48,6 +48,8 @@ class APEHandler;
 
 void apeInit(APEHandler *apeHandle, const size_t buf_size = 0, cudaStream_t stream = 0);
 
+void apeDestroy(APEHandler *apeHandle);
+
 void apeGemmFP32(APEHandler apeHandle, ApeTrans transa, ApeTrans transb, int m, int n, int k, const float *alpha, const float *A, int lda,
                  const float *B, int ldb, const float *beta, float *C, int ldc, const ApeAlgo algo = APE_ALGO_AUTO);
 
