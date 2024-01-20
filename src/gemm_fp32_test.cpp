@@ -32,16 +32,14 @@ void test_gemm_fp32(size_t seed, float alpha, float beta, float mean, float stde
     width = 0;
   }
   APEHandler apeHandle;
-  apeInit(&apeHandle, (1ULL * m * k + k * n) * width);
   float *data_eval_a = 0, *data_eval_b = 0, *data_eval_c = 0, *data_backup_c = 0;
-  cudaSafeCall(cudaMalloc((void **)&data_eval_a, m * k * sizeof(float)));
-  cudaSafeCall(cudaMalloc((void **)&data_eval_b, k * n * sizeof(float)));
-  cudaSafeCall(cudaMalloc((void **)&data_eval_c, m * n * sizeof(float)));
-  cudaSafeCall(cudaMalloc((void **)&data_backup_c, m * n * sizeof(float)));
+  cudaSafeCall(cudaMallocManaged((void **)&data_eval_a, m * k * sizeof(float)));
+  cudaSafeCall(cudaMallocManaged((void **)&data_eval_b, k * n * sizeof(float)));
+  cudaSafeCall(cudaMallocManaged((void **)&data_eval_c, m * n * sizeof(float)));
   double *data_res_a = 0, *data_res_b = 0, *data_res_c = 0;
-  cudaSafeCall(cudaMalloc((void **)&data_res_a, m * k * sizeof(double)));
-  cudaSafeCall(cudaMalloc((void **)&data_res_b, k * n * sizeof(double)));
-  cudaSafeCall(cudaMalloc((void **)&data_res_c, m * n * sizeof(double)));
+  cudaSafeCall(cudaMallocManaged((void **)&data_res_a, m * k * sizeof(double)));
+  cudaSafeCall(cudaMallocManaged((void **)&data_res_b, k * n * sizeof(double)));
+  cudaSafeCall(cudaMallocManaged((void **)&data_res_c, m * n * sizeof(double)));
 
   curandGenerator_t gen;
   curandSafeCall(curandCreateGenerator(&gen, CURAND_RNG_PSEUDO_DEFAULT));
@@ -50,7 +48,6 @@ void test_gemm_fp32(size_t seed, float alpha, float beta, float mean, float stde
   curandSafeCall(curandGenerateNormal(gen, data_eval_a, m * k, mean, stdev));
   curandSafeCall(curandGenerateNormal(gen, data_eval_b, k * n, mean, stdev));
   curandSafeCall(curandGenerateNormal(gen, data_eval_c, m * n, mean, stdev));
-  cudaSafeCall(cudaMemcpy(data_eval_c, data_backup_c, sizeof(float) * m * n, cudaMemcpyDeviceToDevice));
 
   ape::convert_fp32_to_fp64(data_res_a, data_eval_a, m * k);
   ape::convert_fp32_to_fp64(data_res_b, data_eval_b, k * n);
@@ -59,12 +56,19 @@ void test_gemm_fp32(size_t seed, float alpha, float beta, float mean, float stde
   float alpha_eval = alpha;
   float beta_eval = beta;
   double alpha_res = alpha_eval, beta_res = beta_eval;
+  apeInit(&apeHandle, (1ULL * m * k + k * n) * width);
   ape::apeGemmFP64(apeHandle, ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_res, data_res_a, m, data_res_b, k, &beta_res,
                    data_res_c, m, ape::APE_ALGO_CUBLAS);
+
+  cudaSafeCall(cudaFree(data_res_a));
+  cudaSafeCall(cudaFree(data_res_b));
+  // cudaSafeCall(cudaFree(data_res_c));
+
   ape::apeGemmFP32(apeHandle, ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_eval, data_eval_a, m, data_eval_b, k, &beta_eval,
                    data_eval_c, m, algo);
   double max_error, mean_error;
   ape::compare_fp32_to_fp64(data_eval_c, data_res_c, m * n, max_error, mean_error);
+  cudaSafeCall(cudaFree(data_res_c));
 
   float duration = 0;
   cudaEvent_t st, ed;
@@ -74,6 +78,8 @@ void test_gemm_fp32(size_t seed, float alpha, float beta, float mean, float stde
     ape::apeGemmFP32(apeHandle, ape::APE_TRANS_T, ape::APE_TRANS_N, m, n, k, &alpha_eval, data_eval_a, m, data_eval_b, k, &beta_eval,
                      data_eval_c, m, algo);
   }
+  cudaSafeCall(cudaMallocManaged((void **)&data_backup_c, m * n * sizeof(float)));
+  cudaSafeCall(cudaMemcpy(data_eval_c, data_backup_c, sizeof(float) * m * n, cudaMemcpyDeviceToDevice));
   for (int i = 0; i < iterations; i++) {
     float tmpdur;
     cudaSafeCall(cudaMemcpy(data_eval_c, data_backup_c, sizeof(float) * m * n, cudaMemcpyDeviceToDevice));

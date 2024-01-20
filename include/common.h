@@ -136,7 +136,7 @@ class APEHandler {
         cublasSafeCall(cublasSetStream(ape_cublas_handle, stream));
     }
     inline void initBuffer(size_t size) {
-        cudaSafeCall(cudaMalloc((void **)&buf, size));
+        cudaSafeCall(cudaMallocManaged((void **)&buf, size));
         buf_size = size;
     }
     inline size_t getBufSize() { return buf_size; }
