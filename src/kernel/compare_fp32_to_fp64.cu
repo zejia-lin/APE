@@ -10,10 +10,10 @@ __global__ void kernel_calc_error(double *buf_sum, double *buf_max, double *buf_
     __shared__ double sbuf_max[32];
     __shared__ double sbfu_fenmu[32];
 
-    uint32_t base = (blockIdx.x * blockDim.x + threadIdx.x);
-    uint32_t step = blockDim.x * gridDim.x;
+    size_t base = (blockIdx.x * blockDim.x + threadIdx.x);
+    size_t step = blockDim.x * gridDim.x;
     double sum = 0, max = 0, fenmu = 0;
-    for (uint32_t i = base; i < size; i += step) {
+    for (size_t i = base; i < size; i += step) {
         double err = fabs(double(src[i]) - dst[i]);
         fenmu += src[i] * src[i];
         sum += err * err;
